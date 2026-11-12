@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaml.Application.Abstractions.Persistence;
 using Shaml.Application.Abstractions.Security;
 using Shaml.Infrastructure.Persistence;
+using Shaml.Infrastructure.Persistence.Messaging;
 using Shaml.Infrastructure.Persistence.Repositories;
 using Shaml.Infrastructure.Security;
 
@@ -32,6 +33,9 @@ public static class DependencyInjection
         // Security
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IPermissionService, PermissionService>();
+        
+        // Outbox writer that handle the sequence
+        services.AddScoped<OutboxWriter>();
 
         return services;
     }

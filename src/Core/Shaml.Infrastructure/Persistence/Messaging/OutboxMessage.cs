@@ -17,6 +17,9 @@ public sealed class OutboxMessage
 
     public DateTime? ProcessedAtUtc { get; private set; }
     public string? LastError { get; private set; }
+    
+    public Guid? StreamId { get; private set; }
+    public long? AggregateSequence { get; private set; }
 
     private OutboxMessage() { }
 
@@ -39,6 +42,36 @@ public sealed class OutboxMessage
             Status = OutboxStatus.Pending
         };
     }
+    
+    
+    public static OutboxMessage CreateOrdered(Guid streamId, long aggregateSequence, string eventType, string payload)
+    {
+        if (streamId == Guid.Empty)
+            throw new ArgumentException(
+                "Stream ID cannot be empty.", nameof(streamId));
+
+        if (aggregateSequence <= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(aggregateSequence));
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(payload);
+
+        var now = DateTime.UtcNow;
+
+        return new OutboxMessage
+        {
+            Id = Guid.NewGuid(),
+            StreamId = streamId,
+            AggregateSequence = aggregateSequence,
+            EventType = eventType,
+            Payload = payload,
+            OccurredAtUtc = now,
+            NextAttemptAtUtc = now,
+            Status = OutboxStatus.Pending
+        };
+    }
+
 }
 
 public enum OutboxStatus
