@@ -1,0 +1,18 @@
+﻿
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>d1da72b4-30af-43b1-8ad7-e9ebd4f7efd5</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Shaml.Application/Shaml.Application.csproj" />
+    <ProjectReference Include="../../Core/Shaml.Infrastructure/Shaml.Infrastructure.csproj" />
+    <ProjectReference Include="../../Core/Shaml.Workflows/Shaml.Workflows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+
+</Project>

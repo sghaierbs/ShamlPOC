@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/Shaml.Application/Shaml.Application.csproj" />
+    <Project Path="src/Core/Shaml.Domain/Shaml.Domain.csproj" />
+    <Project Path="src/Core/Shaml.Infrastructure/Shaml.Infrastructure.csproj" />
+    <Project Path="src/Core/Shaml.Workflows/Shaml.Workflows.csproj" />
+  </Folder>
+  <Folder Name="/src/Hosts/">
+    <Project Path="src/Hosts/Shaml.Api/Shaml.Api.csproj" />
+    <Project Path="src/Hosts/Shaml.Elsa.Studio/Shaml.Elsa.Studio.csproj" />
+  </Folder>
+</Solution>

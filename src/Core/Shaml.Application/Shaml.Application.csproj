@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shaml.Domain\Shaml.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstractions\Authentication\" />
+    <Folder Include="Abstractions\Clock\" />
+    <Folder Include="Abstractions\Workflows\" />
+    <Folder Include="Cases\Commands\" />
+    <Folder Include="Cases\DTO\" />
+    <Folder Include="Cases\Queries\" />
+    <Folder Include="Sessions\" />
+  </ItemGroup>
+
+</Project>
