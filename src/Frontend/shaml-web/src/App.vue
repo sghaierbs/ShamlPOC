@@ -97,23 +97,51 @@ async function login() {
   }
 }
 
+
 async function switchRole(userRoleId: number) {
-  if (userRoleId === activeUserRoleId.value) return
+  if (userRoleId === activeUserRoleId.value || loading.value) return
+
   loading.value = true
   errorMessage.value = ''
+
   try {
-    const response = await apiRequest<LoginResponse>('/auth/switch-role', {
-      method: 'POST',
-      body: JSON.stringify({ userRoleId }),
-    })
+    const response = await apiRequest<LoginResponse>(
+        '/auth/switch-role',
+        {
+          method: 'POST',
+          body: JSON.stringify({ userRoleId }),
+        },
+    )
+
+    // The backend has invalidated the previous token.
+    // Store the replacement before making any further requests.
     saveSession(response)
-    await loadRoleContext()
+
+    // Remove permissions from the previous role immediately.
+    roles.value = []
+    permissions.value = []
+    activeSection.value = 'home'
+    roleContextVersion.value += 1
+
+    try {
+      await loadRoleContext()
+    } catch {
+      // The new JWT is valid, but its role context
+      // could not be loaded. Do not restore the old JWT.
+      clearSession()
+      errorMessage.value =
+          'Your role was changed, but the session could not be refreshed. Please sign in again.'
+    }
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : 'Role switch failed.'
+    errorMessage.value =
+        error instanceof Error
+            ? error.message
+            : 'Unable to switch role.'
   } finally {
     loading.value = false
   }
 }
+
 
 onMounted(async () => {
   if (!accessToken.value) return
@@ -220,9 +248,11 @@ onMounted(async () => {
       />
 
       <CenterManagementView
-        v-else-if="activeSection === 'centers' && accessToken && permissions.includes('CENTER_VIEW')"
-        :key="`centers-${roleContextVersion}`"
-        :access-token="accessToken"
+          v-else-if="activeSection === 'centers' && accessToken && permissions.includes('CENTER_VIEW')"
+          :key="`centers-${roleContextVersion}`"
+          :access-token="accessToken"
+          :can-create="permissions.includes('CENTER_CREATE')"
+          :can-update="permissions.includes('CENTER_UPDATE')"
       />
 
       <UserManagementView

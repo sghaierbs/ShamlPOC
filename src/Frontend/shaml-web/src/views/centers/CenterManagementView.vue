@@ -6,7 +6,11 @@ import type {
   GeographicLookup,
 } from '../../types/centers'
 
-const props = defineProps<{ accessToken: string }>()
+const props = defineProps<{
+  accessToken: string
+  canCreate: boolean
+  canUpdate: boolean
+}>()
 
 type Mode = 'list' | 'view' | 'create' | 'edit'
 
@@ -116,6 +120,8 @@ function resetForm() {
 }
 
 async function openCreate() {
+  if (!props.canCreate) return
+
   errorMessage.value = ''
   successMessage.value = ''
   resetForm()
@@ -130,6 +136,7 @@ async function openView(center: CenterDto) {
 }
 
 async function openEdit(center: CenterDto) {
+  if (!props.canUpdate) return
   errorMessage.value = ''
   selectedCenter.value = await api<CenterDto>(`/centers/${center.id}`)
   const current = selectedCenter.value
@@ -248,7 +255,14 @@ onMounted(async () => {
           <span class="eyebrow">CENTERS</span>
           <h2>Registered centers</h2>
         </div>
-        <button class="primary" type="button" @click="openCreate">Create center</button>
+        <button
+            v-if="canCreate"
+            class="primary"
+            type="button"
+            @click="openCreate"
+        >
+          Create center
+        </button>
       </header>
 
       <div class="table-wrap">
@@ -275,7 +289,13 @@ onMounted(async () => {
               <td><span class="status" :class="{ inactive: !center.isActive }">{{ center.isActive ? 'Active' : 'Inactive' }}</span></td>
               <td class="actions">
                 <button type="button" @click="openView(center)">View</button>
-                <button type="button" @click="openEdit(center)">Update</button>
+                <button
+                    v-if="canUpdate"
+                    type="button"
+                    @click="openEdit(center)"
+                >
+                  Update
+                </button>
               </td>
             </tr>
           </tbody>
