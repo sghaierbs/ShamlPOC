@@ -5,6 +5,7 @@ using Shaml.Application.Abstractions.Persistence;
 using Shaml.Domain.Centers;
 using Shaml.Domain.Geography;
 using Shaml.Domain.Identity;
+using Shaml.Infrastructure.Persistence.Messaging;
 
 namespace Shaml.Infrastructure.Persistence;
 
@@ -19,6 +20,9 @@ public sealed class ShamlDbContext(
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<Center> Centers => Set<Center>();
+    //OutboxMessages && InboxMessages
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
 
     // Geographic reference data
     public DbSet<Region> Regions => Set<Region>();
@@ -305,5 +309,59 @@ public sealed class ShamlDbContext(
             entity.HasIndex(x => x.RegionId);
             entity.HasIndex(x => x.CityId);
         });
+        
+        
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("OutboxMessages");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.EventType)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(x => x.Payload)
+                .HasColumnType("jsonb")
+                .IsRequired();
+
+            entity.Property(x => x.Status)
+                .HasConversion<int>()
+                .IsRequired();
+
+            entity.Property(x => x.OccurredAtUtc).IsRequired();
+            entity.Property(x => x.NextAttemptAtUtc).IsRequired();
+            entity.Property(x => x.Attempts).IsRequired();
+
+            entity.Property(x => x.LastError)
+                .HasMaxLength(4000);
+
+            entity.HasIndex(x => new
+            {
+                x.Status,
+                x.NextAttemptAtUtc
+            });
+
+            entity.HasIndex(x => x.LockedUntilUtc);
+        });
+
+        modelBuilder.Entity<InboxMessage>(entity =>
+        {
+            entity.ToTable("InboxMessages");
+
+            entity.HasKey(x => new
+            {
+                x.EventId,
+                x.ConsumerName
+            });
+
+            entity.Property(x => x.ConsumerName)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(x => x.ProcessedAtUtc)
+                .IsRequired();
+        });
+
     }
 }
