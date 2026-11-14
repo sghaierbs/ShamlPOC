@@ -36,6 +36,7 @@ public static class DependencyInjection
         
         // Outbox writer that handle the sequence
         services.AddScoped<OutboxWriter>();
+        services.AddScoped<OutboxDispatcher>();
 
         return services;
     }

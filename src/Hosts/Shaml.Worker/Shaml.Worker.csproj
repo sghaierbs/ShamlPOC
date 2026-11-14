@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+<PropertyGroup>
+  <TargetFramework>net10.0</TargetFramework>
+  <Nullable>enable</Nullable>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <UserSecretsId>dotnet-Shaml.Worker-41b7e0a1-04a4-46b5-bea1-f99699a7020d</UserSecretsId>
+</PropertyGroup>
+
+<ItemGroup>
+  <ProjectReference Include="../../Core/Shaml.Infrastructure/Shaml.Infrastructure.csproj" />
+  <ProjectReference Include="../../Core/Shaml.Workflows/Shaml.Workflows.csproj" />
+</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Elsa.Workflows.Api" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+
+</Project>

@@ -9,5 +9,6 @@
   <Folder Name="/src/Hosts/">
     <Project Path="src/Hosts/Shaml.Api/Shaml.Api.csproj" />
     <Project Path="src/Hosts/Shaml.Elsa.Studio/Shaml.Elsa.Studio.csproj" />
+    <Project Path="src/Hosts/Shaml.Worker/Shaml.Worker.csproj" />
   </Folder>
 </Solution>

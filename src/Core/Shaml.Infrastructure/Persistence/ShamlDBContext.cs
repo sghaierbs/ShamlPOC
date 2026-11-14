@@ -23,7 +23,6 @@ public sealed class ShamlDbContext(
     //OutboxMessages && InboxMessages
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
-    public DbSet<OutboxStream> OutboxStreams => Set<OutboxStream>();
 
     // Geographic reference data
     public DbSet<Region> Regions => Set<Region>();
@@ -342,22 +341,6 @@ public sealed class ShamlDbContext(
                 x.Status,
                 x.NextAttemptAtUtc
             });
-
-            entity.HasIndex(x => x.LockedUntilUtc);
-            entity.Property(x => x.StreamId);
-
-            entity.Property(x => x.AggregateSequence);
-
-            entity.HasOne<OutboxStream>()
-                .WithMany()
-                .HasForeignKey(x => x.StreamId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasIndex(x => new
-            {
-                x.StreamId,
-                x.AggregateSequence
-            }).IsUnique();
         });
 
         modelBuilder.Entity<InboxMessage>(entity =>
@@ -377,37 +360,5 @@ public sealed class ShamlDbContext(
             entity.Property(x => x.ProcessedAtUtc)
                 .IsRequired();
         });
-        
-        
-        modelBuilder.Entity<OutboxStream>(entity =>
-        {
-            entity.ToTable("OutboxStreams");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.AggregateType)
-                .HasMaxLength(100)
-                .IsRequired();
-
-            entity.Property(x => x.AggregateId)
-                .HasMaxLength(150)
-                .IsRequired();
-
-            entity.Property(x => x.Destination)
-                .HasMaxLength(100)
-                .IsRequired();
-
-            entity.Property(x => x.LastSequence)
-                .IsRequired();
-
-            entity.HasIndex(x => new
-            {
-                x.AggregateType,
-                x.AggregateId,
-                x.Destination
-            }).IsUnique();
-        });
-
-
     }
 }

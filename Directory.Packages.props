@@ -5,19 +5,35 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore"
-                        Version="10.0.14" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
 
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational"
-                        Version="10.0.14" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
 
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design"
-                        Version="10.0.14" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14" />
 
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL"
-                        Version="10.0.3" />
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
 
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer"
-                        Version="10.0.14" />
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+
+        <PackageVersion Include="Elsa" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Persistence.EFCore.PostgreSql" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Scheduling" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Workflows.Api" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Identity" Version="3.8.4" />
+
+        <PackageVersion Include="Elsa.Studio" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Core.BlazorWasm" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Shell" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Workflows" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Login" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Authentication.ElsaIdentity" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Authentication.ElsaIdentity.BlazorServer" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Core.BlazorServer" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Login.BlazorServer" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Authentication.ElsaIdentity.UI" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Authentication.UI" Version="3.8.4" />
+        <PackageVersion Include="Elsa.Studio.Authentication.Themes" Version="3.8.4" />
     </ItemGroup>
 </Project>

@@ -4,5 +4,19 @@
     <ProjectReference Include="..\Shaml.Application\Shaml.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Activities\" />
+    <Folder Include="Definitions\" />
+    <Folder Include="Integration\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Elsa" />
+    <PackageReference Include="Elsa.Persistence.EFCore.PostgreSql" />
+    <PackageReference Include="Elsa.Scheduling" />
+    <PackageReference Include="Elsa.Workflows.Api" />
+    <PackageReference Include="Elsa.Identity" />
+  </ItemGroup>
+
 
 </Project>
