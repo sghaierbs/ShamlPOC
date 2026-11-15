@@ -6,6 +6,7 @@ using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shaml.Workflows.Definitions;
 
 namespace Shaml.Workflows;
 
@@ -60,6 +61,9 @@ public static class DependencyInjection
             elsa.UseDefaultAuthentication();
             elsa.UseScheduling();
             elsa.UseWorkflowsApi();
+            
+            // Code-first workflow definitions
+            elsa.AddWorkflow<ShamlCaseLifecycle>();
         });
 
         return services;

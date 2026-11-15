@@ -4,7 +4,7 @@ import type { UserRoleResponse } from '../../types/auth'
 defineProps<{
   roles: UserRoleResponse[]
   activeUserRoleId: number | null
-  activeSection: 'home' | 'cases' | 'centers' | 'users'
+  activeSection: 'home' | 'cases' | 'tasks' | 'centers' | 'users'
   permissions: string[]
   switching?: boolean
 }>()
@@ -12,7 +12,7 @@ defineProps<{
 const emit = defineEmits<{
   switchRole: [userRoleId: number]
   signOut: []
-  navigate: [section: 'home' | 'cases' | 'centers' | 'users']
+  navigate: [section: 'home' | 'cases' | 'tasks' | 'centers' | 'users']
 }>()
 
 function handleRoleChange(event: Event) {
@@ -46,6 +46,14 @@ function handleRoleChange(event: Event) {
         type="button"
         @click="emit('navigate', 'cases')"
       >My Cases</button>
+      <button
+          v-if="permissions.includes('TASK_VIEW')"
+          :class="{ active: activeSection === 'tasks' }"
+          type="button"
+          @click="emit('navigate', 'tasks')"
+      >
+        My Tasks
+      </button>
       <button
         v-if="permissions.includes('CENTER_VIEW')"
         :class="{ active: activeSection === 'centers' }"

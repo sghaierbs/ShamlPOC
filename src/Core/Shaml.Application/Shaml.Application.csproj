@@ -7,7 +7,6 @@
   <ItemGroup>
     <Folder Include="Abstractions\Authentication\" />
     <Folder Include="Abstractions\Clock\" />
-    <Folder Include="Abstractions\Workflows\" />
     <Folder Include="Cases\Commands\" />
     <Folder Include="Cases\DTO\" />
     <Folder Include="Cases\Queries\" />

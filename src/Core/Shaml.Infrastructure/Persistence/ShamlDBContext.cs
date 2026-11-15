@@ -2,10 +2,13 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Shaml.Application.Abstractions.Persistence;
+using Shaml.Domain.Cases;
 using Shaml.Domain.Centers;
 using Shaml.Domain.Geography;
 using Shaml.Domain.Identity;
+using Shaml.Infrastructure.Persistence.Converters;
 using Shaml.Infrastructure.Persistence.Messaging;
+using Shaml.Infrastructure.Persistence.Workflows;
 
 namespace Shaml.Infrastructure.Persistence;
 
@@ -23,6 +26,12 @@ public sealed class ShamlDbContext(
     //OutboxMessages && InboxMessages
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
+    
+    public DbSet<Case> Cases => Set<Case>();
+    
+    public DbSet<CaseAssignment> CaseAssignments => Set<CaseAssignment>();
+    
+    public DbSet<CaseWorkflowInstance> CaseWorkflowInstances => Set<CaseWorkflowInstance>();
 
     // Geographic reference data
     public DbSet<Region> Regions => Set<Region>();
@@ -360,5 +369,159 @@ public sealed class ShamlDbContext(
             entity.Property(x => x.ProcessedAtUtc)
                 .IsRequired();
         });
+        
+        
+        modelBuilder.Entity<Case>(entity =>
+        {
+            entity.ToTable("Cases");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Id)
+                .ValueGeneratedNever();
+
+            entity.Property(x => x.ExternalCaseId)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(x => x.SourceSystem)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(x => x.CenterId)
+                .IsRequired();
+
+            entity.Property(x => x.Status)
+                .HasConversion<CaseStatusConverter>()
+                .HasMaxLength(40)
+                .IsRequired();
+
+            entity.Property(x => x.CreatedAtUtc)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            entity.Property(x => x.UpdatedAtUtc)
+                .HasColumnType("timestamp with time zone")
+                .IsRequired(false);
+
+            entity.Property(x => x.Version)
+                .HasDefaultValue(1L)
+                .IsConcurrencyToken()
+                .IsRequired();
+
+            entity.HasOne<Center>()
+                .WithMany()
+                .HasForeignKey(x => x.CenterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(x => new
+                {
+                    x.SourceSystem,
+                    x.ExternalCaseId
+                })
+                .IsUnique()
+                .HasDatabaseName("UX_Cases_SourceSystem_ExternalCaseId");
+
+            entity.HasIndex(x => new
+                {
+                    x.CenterId,
+                    x.Status
+                })
+                .HasDatabaseName("IX_Cases_CenterId_Status");
+
+            entity.HasIndex(x => new
+                {
+                    x.CenterId,
+                    x.CreatedAtUtc
+                })
+                .HasFilter("\"Status\" = 'PENDING_ASSIGNMENT'")
+                .HasDatabaseName("IX_Cases_PendingAssignment");
+        });
+        
+        
+        modelBuilder.Entity<CaseAssignment>(entity =>
+        {
+            entity.ToTable("CaseAssignments");
+
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.AssignedAtUtc)
+                .IsRequired();
+
+            entity.Property(x => x.EndReason)
+                .HasMaxLength(100);
+
+            entity.Ignore(x => x.IsActive);
+
+            entity.HasOne<Case>()
+                .WithMany()
+                .HasForeignKey(x => x.CaseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne<UserRole>()
+                .WithMany()
+                .HasForeignKey(x => x.UserRoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne<UserRole>()
+                .WithMany()
+                .HasForeignKey(x => x.AssignedByUserRoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(x => x.CaseId)
+                .IsUnique()
+                .HasFilter("\"EndedAtUtc\" IS NULL")
+                .HasDatabaseName("UX_CaseAssignments_Active");
+
+            entity.HasIndex(x => new
+                {
+                    x.UserRoleId,
+                    x.CaseId
+                })
+                .HasFilter("\"EndedAtUtc\" IS NULL")
+                .HasDatabaseName(
+                    "IX_CaseAssignments_UserRoleId_Active");
+        });
+
+       
+        
+        modelBuilder.Entity<CaseWorkflowInstance>(entity =>
+        {
+            entity.ToTable("CaseWorkflowInstances");
+
+            entity.HasKey(x => x.CaseId);
+
+            entity.Property(x => x.WorkflowDefinitionId)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(x => x.WorkflowInstanceId)
+                .HasMaxLength(200);
+
+            entity.Property(x => x.Status)
+                .HasMaxLength(30)
+                .IsRequired();
+
+            entity.Property(x => x.LastError)
+                .HasMaxLength(4000);
+
+            entity.Property(x => x.CreatedAtUtc)
+                .IsRequired();
+
+            entity.Property(x => x.UpdatedAtUtc)
+                .IsRequired();
+
+            entity.HasOne<Shaml.Domain.Cases.Case>()
+                .WithOne()
+                .HasForeignKey<CaseWorkflowInstance>(x => x.CaseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(x => x.WorkflowInstanceId)
+                .IsUnique()
+                .HasFilter("\"WorkflowInstanceId\" IS NOT NULL")
+                .HasDatabaseName(
+                    "UX_CaseWorkflowInstances_InstanceId");
+        });
+
     }
 }

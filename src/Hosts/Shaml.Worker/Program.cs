@@ -1,42 +1,62 @@
+
 using Elsa.Extensions;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Shaml.Application.Abstractions.Workflows;
 using Shaml.Infrastructure;
 using Shaml.Infrastructure.Persistence.Messaging;
+using Shaml.Worker.Integration;
 using Shaml.Workflows;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Business database and infrastructure
+// =====================================================
+// 1. Shaml Business Infrastructure
+// =====================================================
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Elsa runtime, persistence, identity, and authentication
+// =====================================================
+// 2. Elsa Runtime
+// =====================================================
 builder.Services.AddShamlWorkflows(builder.Configuration);
 
-// Temporarily disable dispatcher until Elsa publisher is implemented.
-builder.Services.RemoveAll<OutboxDispatcher>();
+// =====================================================
+// 3. Workflow Startup Integration
+// =====================================================
+builder.Services.AddScoped<ICaseWorkflowStarter, ElsaCaseWorkflowStarter>();
 
-// Transactional outbox dispatcher
-// builder.Services.AddHostedService<OutboxBackgroundService>();
+// =====================================================
+// 4. Transactional Outbox
+// =====================================================
+builder.Services.AddScoped<IOutboxMessagePublisher, CaseCreatedOutboxPublisher>();
 
-// Authorization services
+builder.Services.AddScoped<OutboxDispatcher>();
+
+// =====================================================
+// 5. Background Processing
+// =====================================================
+builder.Services.AddHostedService<OutboxBackgroundService>();
+
+// =====================================================
+// 6. ASP.NET Core Services
+// =====================================================
 builder.Services.AddAuthorization();
-
-// Health checks
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-// HTTP middleware
+// =====================================================
+// 7. HTTP Middleware
+// =====================================================
 app.UseRouting();
-
-// Elsa Identity authentication
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Health check endpoint
+// =====================================================
+// 8. Endpoints
+// =====================================================
 app.MapHealthChecks("/health");
-
-// Elsa workflow management and runtime APIs
 app.MapWorkflowsApi();
 
+// =====================================================
+// 9. Start Worker
+// =====================================================
 await app.RunAsync();

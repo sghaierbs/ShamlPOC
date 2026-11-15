@@ -5,6 +5,7 @@ import CenterManagementView from './views/centers/CenterManagementView.vue'
 import MyCasesView from './views/cases/MyCasesView.vue'
 import UserManagementView from './views/users/UserManagementView.vue'
 import type { LoginResponse, UserRoleResponse } from './types/auth'
+import MyTasksView from './views/tasks/MyTasksView.vue'
 
 const accessToken = ref(sessionStorage.getItem('shaml_access_token'))
 const activeUserRoleId = ref<number | null>(
@@ -16,7 +17,7 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const permissions = ref<string[]>([])
-const activeSection = ref<'home' | 'cases' | 'centers' | 'users'>('home')
+const activeSection = ref<'home' | 'cases' | 'tasks' | 'centers' | 'users'>('home')
 const roleContextVersion = ref(0)
 const isAuthenticated = computed(() => Boolean(accessToken.value))
 
@@ -57,7 +58,7 @@ async function loadPermissions() {
 
 function resetRoleContext() {
   const activeRole = roles.value.find(
-    (role) => role.userRoleId === activeUserRoleId.value,
+      (role) => role.userRoleId === activeUserRoleId.value,
   )
 
   if (activeRole?.roleCode === 'PUBLIC_USER') {
@@ -66,6 +67,8 @@ function resetRoleContext() {
     activeSection.value = 'home'
   } else if (permissions.value.includes('CASE_VIEW')) {
     activeSection.value = 'cases'
+  } else if (permissions.value.includes('TASK_VIEW')) {
+    activeSection.value = 'tasks'
   } else {
     activeSection.value = 'home'
   }
@@ -243,10 +246,19 @@ onMounted(async () => {
       </template>
 
       <MyCasesView
-        v-else-if="activeSection === 'cases'"
-        :key="`cases-${roleContextVersion}`"
+          v-else-if="activeSection === 'cases' && accessToken && permissions.includes('CASE_VIEW')"
+          :key="`cases-${roleContextVersion}`"
+          :access-token="accessToken"
       />
-
+      <MyTasksView
+          v-else-if="
+          activeSection === 'tasks' &&
+          accessToken &&
+          permissions.includes('TASK_VIEW')
+        "
+                :key="`tasks-${roleContextVersion}`"
+                :access-token="accessToken"
+            />
       <CenterManagementView
           v-else-if="activeSection === 'centers' && accessToken && permissions.includes('CENTER_VIEW')"
           :key="`centers-${roleContextVersion}`"

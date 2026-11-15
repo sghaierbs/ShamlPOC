@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Shaml.Api.Security;
 using Shaml.Application.Abstractions.Persistence;
 using Shaml.Application.Abstractions.Security;
+using Shaml.Application.Cases.CreateCase;
 using Shaml.Application.Centers.CreateCenter;
 using Shaml.Application.Centers.Management;
 using Shaml.Application.Geography;
@@ -40,6 +41,8 @@ builder.Services.AddScoped<ICenterCreationStore, CenterCreationStore>();
 builder.Services.AddScoped<CenterManagementHandler>();
 builder.Services.AddScoped<ICenterManagementStore, CenterManagementStore>();
 
+builder.Services.AddScoped<CreateCaseHandler>();
+
 // Current authenticated user
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
@@ -70,9 +73,7 @@ if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
 }
 
 // Authentication
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
 
@@ -159,13 +160,9 @@ builder.Services
 // Authorization
 builder.Services.AddAuthorization();
 
-builder.Services.AddSingleton<
-    IAuthorizationPolicyProvider,
-    PermissionPolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
-builder.Services.AddScoped<
-    IAuthorizationHandler,
-    PermissionAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 // Controllers
 builder.Services.AddControllers();
